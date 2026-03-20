@@ -1327,16 +1327,32 @@
     <script>
         // Initialize data
         const ADMIN_PASSWORD = 'T9!vQ2#rL7@pX4zM';
+        const SHARED_PRODUCTS_KEY = 'products';
+        const SHARED_SECTIONS_KEY = 'sections';
+
         let adminLoggedIn = false;
         let productImageData = null;
 
-        let sections = JSON.parse(localStorage.getItem('sections')) || getDefaultSections();
-        let products = JSON.parse(localStorage.getItem('products')) || getDefaultProducts();
-        let cart = JSON.parse(localStorage.getItem('cart')) || { essentials: [], denimTears: [] };
-        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let sections = [];
+        let products = [];
+        let cart = {};
+        let orders = [];
         let selectedProduct = null;
         let selectedSize = null;
         let paymentProofData = null;
+
+        function loadData() {
+            sections = JSON.parse(localStorage.getItem(SHARED_SECTIONS_KEY)) || getDefaultSections();
+            products = JSON.parse(localStorage.getItem(SHARED_PRODUCTS_KEY)) || getDefaultProducts();
+            cart = JSON.parse(localStorage.getItem('cart')) || {};
+            orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+            sections.forEach(section => {
+                if (!cart[section.id]) {
+                    cart[section.id] = [];
+                }
+            });
+        }
 
         function getDefaultSections() {
             return [
@@ -1427,11 +1443,22 @@
 
         // Save data to localStorage
         function saveData() {
-            localStorage.setItem('products', JSON.stringify(products));
-            localStorage.setItem('sections', JSON.stringify(sections));
+            localStorage.setItem(SHARED_PRODUCTS_KEY, JSON.stringify(products));
+            localStorage.setItem(SHARED_SECTIONS_KEY, JSON.stringify(sections));
             localStorage.setItem('cart', JSON.stringify(cart));
             localStorage.setItem('orders', JSON.stringify(orders));
         }
+
+        // Sync across browser tabs / windows of same origin
+        window.addEventListener('storage', (event) => {
+            if (event.key === SHARED_PRODUCTS_KEY || event.key === SHARED_SECTIONS_KEY || event.key === 'cart' || event.key === 'orders') {
+                loadData();
+                renderProducts();
+                renderAdminProducts();
+                renderAdminSections();
+                updateCartCount();
+            }
+        });
 
         // Render products
         function renderProducts() {
@@ -2209,15 +2236,13 @@
             });
         });
 
-        // Initialize cart structure for sections
-        sections.forEach(section => {
-            if (!cart[section.id]) {
-                cart[section.id] = [];
-            }
-        });
+        // Initialize from localStorage (or defaults)
+        loadData();
 
-        // Initialize
+        // Render initial state
         renderProducts();
+        renderAdminProducts();
+        renderAdminSections();
         updateCartCount();
     </script>
 </body>
