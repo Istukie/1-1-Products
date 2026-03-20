@@ -1100,8 +1100,12 @@
                         <input type="tel" class="form-input" id="phone" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Street Address, APT *</label>
-                        <input type="text" class="form-input" id="street" required>
+                        <label class="form-label">Street Address *</label>
+                        <input type="text" class="form-input" id="street" placeholder="e.g., 123 Main Street" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Apartment/Suite/Unit (Optional)</label>
+                        <input type="text" class="form-input" id="apartment" placeholder="e.g., Apt 5B, Suite 100">
                     </div>
                     <div class="form-group">
                         <label class="form-label">City *</label>
@@ -1768,6 +1772,7 @@
             const fullName = document.getElementById('fullName').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const street = document.getElementById('street').value.trim();
+            const apartment = document.getElementById('apartment').value.trim();
             const city = document.getElementById('city').value.trim();
             const state = document.getElementById('state').value.trim();
             const zip = document.getElementById('zip').value.trim();
@@ -1786,6 +1791,8 @@
             hideAll();
             document.getElementById('confirmationContainer').classList.add('active');
 
+            const fullAddress = apartment ? `${street} ${apartment}, ${city}, ${state} ${zip}` : `${street}, ${city}, ${state} ${zip}`;
+
             document.getElementById('orderReviewDetails').innerHTML = `
                 <div class="order-detail-row">
                     <span class="order-detail-label">Name</span>
@@ -1797,7 +1804,7 @@
                 </div>
                 <div class="order-detail-row">
                     <span class="order-detail-label">Address</span>
-                    <span class="order-detail-value">${street}, ${city}, ${state} ${zip}</span>
+                    <span class="order-detail-value">${fullAddress}</span>
                 </div>
                 <div class="order-detail-row">
                     <span class="order-detail-label">Total</span>
@@ -1828,6 +1835,7 @@
                     phone: document.getElementById('phone').value.trim(),
                     address: {
                         street: document.getElementById('street').value.trim(),
+                        apartment: document.getElementById('apartment').value.trim(),
                         city: document.getElementById('city').value.trim(),
                         state: document.getElementById('state').value.trim(),
                         zip: document.getElementById('zip').value.trim()
@@ -1914,7 +1922,7 @@
                         <div class="order-customer-phone">${order.customer.phone}</div>
                     </div>
                     <div class="order-address">
-                        📍 ${order.customer.address.street}, ${order.customer.address.city}, ${order.customer.address.state} ${order.customer.address.zip}
+                        📍 ${order.customer.address.street}${order.customer.address.apartment ? ' ' + order.customer.address.apartment : ''}, ${order.customer.address.city}, ${order.customer.address.state} ${order.customer.address.zip}
                     </div>
                     <div class="order-items">
                         <strong>Items:</strong>
